@@ -2,7 +2,7 @@
 
 const UserManagment = () => {
   return (
-    <div>UserManagment</div>
+    <div>This is user managment </div>
   )
 }
 
