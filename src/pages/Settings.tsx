@@ -1,8 +1,11 @@
+import AdminSettings from "../Component/settings/SettingSytem"
 
 
 const Settings = () => {
   return (
-    <div>Settings</div>
+    <div>
+      <AdminSettings/>
+    </div>
   )
 }
 

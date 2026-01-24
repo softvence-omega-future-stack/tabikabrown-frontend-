@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-72 bg-white rounded-[20px] min-h-screen border border-gray-400 flex flex-col py-7.5 px-6">
+    <div className="w-64 bg-white rounded-[20px] min-h-screen border-r border-gray-400 flex flex-col py-7.5 px-2">
     
 
       {/* Navigation Links */}
