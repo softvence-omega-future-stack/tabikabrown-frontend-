@@ -1,8 +1,13 @@
+import ProviderCard from "../Component/providerManagment/ProviderCard"
+import ProviderTable from "../Component/providerManagment/ProviderTable"
 
 
 const ProviderManagment = () => {
   return (
-    <div>ProviderManagment</div>
+    <div>
+      <ProviderCard/>
+      <ProviderTable/>
+    </div>
   )
 }
 

@@ -3,7 +3,8 @@ import logo from '../../public/images/logo.svg'
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   return (
-    <header className="flex items-center justify-between py-2.5 px-5 bg-[#FFFFFF33] text-white rounded-[10px] mb-5">
+  <header className="sticky top-0 z-50 flex items-center justify-between py-2.5 px-5 bg-[#FFFFFF33] backdrop-blur-md text-white rounded-[10px]">
+
       <div className="flex items-center gap-3 md:gap-10">
         {/* Mobile Menu Toggle */}
         <button onClick={onMenuClick} className="md:hidden p-2 hover:bg-white/10 rounded-lg">

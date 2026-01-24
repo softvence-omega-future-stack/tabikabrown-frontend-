@@ -11,7 +11,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import DashboardLayout from "../layout/DashboardLayout";
 import Dashboard from "../pages/Dashboard";
-import UserManagment from "../pages/UserManagment";
+import UserManagmentPage from "../pages/UserManagmentPage";
 import Settings from "../pages/Settings";
 import Analytics from "../pages/Analytics";
 import ProviderManagment from "../pages/ProviderManagment";
@@ -58,7 +58,7 @@ const routes = createBrowserRouter([
         children: [
           { index: true, element: <Dashboard /> },
         //   { path: '', element: <Dashboard /> },
-       { path: "users-managment", element: <UserManagment /> },
+       { path: "users-managment", element: <UserManagmentPage /> },
        { path: "content-managment", element: <ContentManagment /> },
        { path: "provider-managment", element: <ProviderManagment /> },
        { path: "analytics", element: <Analytics /> },
