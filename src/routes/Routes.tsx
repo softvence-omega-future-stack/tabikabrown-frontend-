@@ -16,6 +16,12 @@ import Settings from "../pages/Settings";
 import Analytics from "../pages/Analytics";
 import ProviderManagment from "../pages/ProviderManagment";
 import ContentManagment from "../pages/ContentManagment";
+import LoginPage from "../auth/Login";
+import SignUpPage from "../auth/SignUp";
+import ForgetPassword from "../auth/ForgetPassword";
+import VerifyOTP from "../auth/VerifyOTP";
+import ResetPassword from "../auth/ResetPassword";
+import ProfilePage from "../Component/settings/Profile";
 
 
 
@@ -24,30 +30,31 @@ const routes = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-    //   {
-    //     index: true,
-    //     element: <LoginPage />,
-    //   },
-    //   {
-    //     path: "/login",
-    //     element: <LoginPage />,
-    //   },
-    //   {
-    //     path: "/signup",
-    //     element: <SignupPage />,
-    //   },
-    //   {
-    //     path: "/forget_password",
-    //     element: <ForgotPasswordPage />,
-    //   },
-    //   {
-    //     path: "/otp",
-    //     element: <OTPPage />,
-    //   },
-    //   {
-    //     path: "/new_password",
-    //     element: <CreateNewPasswordPage />,
-    //   },
+      {
+        index: true,
+        element: <LoginPage />,
+      },
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "/signup",
+        element: <SignUpPage />,
+      },
+ 
+      {
+        path: "/forget_password",
+        element: <ForgetPassword />,
+      },
+      {
+        path: "/otp",
+        element: <VerifyOTP />,
+      },
+      {
+        path: "/reset_password",
+        element: <ResetPassword />,
+      },
     //   {
     //     path: "/successfull",
     //     element: <SuccessFullPage />,
@@ -63,7 +70,8 @@ const routes = createBrowserRouter([
        { path: "provider-managment", element: <ProviderManagment /> },
        { path: "analytics", element: <Analytics /> },
        { path: "settings", element: <Settings /> },
-
+       { path: "profile", element: <ProfilePage /> },
+           
         ],
       },
     ],

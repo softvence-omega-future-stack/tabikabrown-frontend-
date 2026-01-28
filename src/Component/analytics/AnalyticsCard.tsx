@@ -1,5 +1,5 @@
 
-import { Plus, Users,  } from 'lucide-react';
+import {  Users,  } from 'lucide-react';
 // import { useState } from 'react';
 // import AddProviderModal from './AddProviderModal';
 
@@ -70,7 +70,7 @@ const AnalyticsCard = () => {
         <h1 className="text-xl md:text-2xl font-bold text-textColor leading-[120%] ">Provider Management</h1>
         <p className='text-gray-600 font-normal text-base leading-6'>5 total providers</p>
       </div>
-      <div>
+      {/* <div>
           <button
             //   onClick={() => setIsModalOpen(true)}
             className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer"
@@ -78,7 +78,7 @@ const AnalyticsCard = () => {
             <Plus className="w-5 h-5" />
             Add New
           </button>
-      </div>
+      </div> */}
    </div>
 
       {/* Stats Cards Grid */}
