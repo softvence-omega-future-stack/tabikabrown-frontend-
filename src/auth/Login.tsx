@@ -7,10 +7,10 @@ import { useNavigate } from 'react-router-dom';
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-white rounded-lg flex items-center justify-center p-2 md:p-8 font-sans">
+    <div className="h-screen flex items-center justify-center p-4 md:p-6  font-sans">
       
       {/* Main Container */}
-      <div className="relative w-full max-w-[1800px] h-[800px] bg-[#311E69] rounded-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="relative w-full h-full  bg-[#311E69]  rounded-2xl overflow-hidden flex flex-col md:flex-row">
         
         {/* LEFT SIDE: Illustration & Logo */}
         <div className="relative flex-1 hidden md:flex flex-col p-8 lg:p-12">
@@ -22,12 +22,12 @@ const LoginPage: React.FC = () => {
           </div>
 
           {/* Character Illustration - Centered vertically */}
-          <div className="flex justify-center items-center flex-1">
-            <div className="relative max-w-md h-[650px]">
+          <div className="flex justify-center items-center flex-1 overflow-hidden">
+            <div className="relative w-full max-w-md flex items-center justify-center" style={{ maxHeight: 'calc(100vh - 280px)' }}>
                <img 
                 src={loginImg}
                 alt="Illustration" 
-                className="w-full h-full object-contain"
+                className="w-auto h-auto max-h-full max-w-full object-contain"
                />
             </div>
           </div>
@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* FOOTER TEXT */}
-        <div className="absolute bottom-3 right-6 lg:bottom-6 lg:right-99 hidden md:block">
+        <div className="absolute bottom-3 right-6 lg:bottom-6 2xl:right-65 hidden md:block">
           <p className="text-sm sm:text-base font-medium leading-5 text-white tracking-wide">
             ©2026 All Rights Reserved MALI. Privacy Terms of Service.
           </p>
