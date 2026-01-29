@@ -75,11 +75,11 @@ const dropdownRef = useRef(null);
       </nav>
 
 {/* Profile Section - Fixed at Bottom */}
-<div ref={dropdownRef} className="border-t border-gray-200 px-3 py-4 bg-white flex-shrink-0">
+<div ref={dropdownRef}  onClick={() => setOpen(!open)} className="border-t border-gray-200 cursor-pointer px-3 py-4 bg-white shrink-0">
 
   <div className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors">
     
-    <div className="w-10 h-10 rounded-full bg-[#8B78F6] flex items-center justify-center text-white font-semibold flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-[#8B78F6] flex items-center justify-center text-white font-semibold shrink-0">
       J
     </div>
 
