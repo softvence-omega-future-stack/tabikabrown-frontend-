@@ -1,7 +1,9 @@
 import { LogOut, Menu } from 'lucide-react';
-import logo from '../../public/images/logo.svg'
+import logo from '../../public/images/logo.png'
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
+  const navigate = useNavigate()
   return (
   <header className="sticky top-0 z-50 flex items-center justify-between py-2.5 px-5 bg-[#FFFFFF33] backdrop-blur-md text-white rounded-[10px]">
 
@@ -25,7 +27,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
         </div>
       </div>
 
-      <button className="flex items-center gap-2 bg-activeBtnColor hover:bg-[#8B78F6] px-4 py-2 rounded-[10px] text-sm leading-6 font-semibold font-inter cursor-pointer transition-colors">
+      <button onClick={()=> navigate('/')} className="flex items-center gap-2 bg-activeBtnColor hover:bg-[#8B78F6] px-4 py-2 rounded-[10px] text-sm leading-6 font-semibold font-inter cursor-pointer transition-colors">
         <LogOut size={18} />
         <span>Logout</span>
       </button>

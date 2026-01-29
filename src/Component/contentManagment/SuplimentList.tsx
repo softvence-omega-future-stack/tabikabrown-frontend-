@@ -1,6 +1,7 @@
-import React from 'react';
-import { Trash2, } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, X } from 'lucide-react';
 import { CiEdit } from 'react-icons/ci';
+import AddNewModal from './AddNewModal';
 
 interface Supplement {
   id: number;
@@ -14,13 +15,99 @@ interface SuplimentsListProps {
   onDelete?: (id: number) => void;
 }
 
+// Delete Confirmation Modal
+interface DeleteConfirmProps {
+  onConfirm: () => void;
+  onCancel: () => void;
+  message: string;
+}
+
+const DeleteConfirmModal: React.FC<DeleteConfirmProps> = ({ onConfirm, onCancel, message }) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-medium">Confirm Delete</h2>
+          <button onClick={onCancel}>
+            <X />
+          </button>
+        </div>
+        <p className="mb-6">{message}</p>
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={onCancel}
+            className="border px-8 py-2 rounded-xl cursor-pointer"
+          >
+            No
+          </button>
+          <button
+            onClick={onConfirm}
+            className="bg-rose-500 text-white px-8 py-2 rounded-xl cursor-pointer"
+          >
+            Yes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SuplimentsList: React.FC<SuplimentsListProps> = ({
   data,
-  onEdit,
   onDelete,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null);
+  
+  // Delete modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [supplementToDelete, setSupplementToDelete] = useState<Supplement | null>(null);
+
+  const handleAdd = () => {
+    setSelectedSupplement(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (supplement: Supplement) => {
+    setSelectedSupplement(supplement);
+    setIsModalOpen(true);
+  };
+
+  // Delete handlers
+  const handleDeleteClick = (supplement: Supplement) => {
+    setSupplementToDelete(supplement);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (supplementToDelete && onDelete) {
+      onDelete(supplementToDelete.id);
+      setSupplementToDelete(null);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setSupplementToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <div className="bg-white p-2.5 md:p-6 border border-gray-400 rounded-[20px] mb-5">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-lg font-semibold text-textColor">
+          Supplements
+        </h2>
+
+        <button
+          onClick={handleAdd}
+          className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer hover:bg-violet-700"
+        >
+          <Plus className="w-5 h-5" />
+          Add New
+        </button>
+      </div>
+
       <div className="space-y-2">
         {data.length === 0 && (
           <p className="text-gray-500 text-center py-5">No items found</p>
@@ -40,14 +127,14 @@ const SuplimentsList: React.FC<SuplimentsListProps> = ({
             </div>
             <div className="flex items-center gap-2 ml-4">
               <button
-                onClick={() => onEdit && onEdit(supplement.id)}
+                onClick={() => handleEdit(supplement)}
                 className="p-2 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                 aria-label="Edit"
               >
                 <CiEdit className="w-6 h-6 text-activeBtnColor" />
               </button>
               <button
-                onClick={() => onDelete && onDelete(supplement.id)}
+                onClick={() => handleDeleteClick(supplement)}
                 className="p-2 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                 aria-label="Delete"
               >
@@ -57,6 +144,24 @@ const SuplimentsList: React.FC<SuplimentsListProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <AddNewModal
+          mode={selectedSupplement ? "edit" : "add"}
+          initialData={selectedSupplement}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && supplementToDelete && (
+        <DeleteConfirmModal
+          message={`Are you sure you want to delete "${supplementToDelete.name}"?`}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ const DashboardLayout = () => {
       
       {/* Blue Background Shape - Fixed */}
       <div 
-        className="fixed top-0 left-0 w-full bg-[#8B78F6] z-0 pointer-events-none" 
+        className="fixed top-0 left-0 w-full bg-[#8B78F6] z-0 pointer-events-none " 
         style={{ 
           height: '547px', 
           clipPath: 'polygon(0 0, 100% 0, 100% 70%, 0% 100%)' 
@@ -19,17 +19,17 @@ const DashboardLayout = () => {
       />
 
       {/* Header - Fixed at Top */}
-      <header className="fixed top-0 left-0 right-0 z-40 px-5 py-3 bg-transparent">
+      <header className="fixed top-0 left-0 right-0 z-40 px-5 py-3 bg-transparent ">
         <Header onMenuClick={() => setIsMobileMenuOpen(true)}/>
       </header>
 
       {/* Main Container with Sidebar and Content */}
-      <div className="flex pt-20">
+      <div className="flex  pt-20">
         
         {/* Desktop Sidebar - Fixed */}
 
-<aside className="hidden md:block fixed left-0 top-20 w-72 z-30">
-  <div className="h-[calc(100vh-80px)] overflow-y-auto px-5 py-6  shadow-lg">
+<aside className="hidden md:block fixed left-6 top-20 w-72 z-30">
+  <div className="h-[calc(100vh-80px)]   py-6  ">
     <Sidebar />
   </div>
 </aside>
@@ -45,11 +45,11 @@ const DashboardLayout = () => {
 
         {/* Mobile Sidebar - Slide from Left */}
         <aside
-          className={`fixed top-0 left-0 bottom-0 w-64 bg-white z-50 md:hidden
+          className={`fixed top-0 left-0 bottom-0 w-72 bg-white z-50 md:hidden
           transition-transform duration-300 ease-in-out shadow-xl
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
         >
-          <div className="h-full overflow-y-auto p-5">
+          <div className="h-full overflow-y-auto p-2">
             <button 
               onClick={() => setIsMobileMenuOpen(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -61,7 +61,7 @@ const DashboardLayout = () => {
         </aside>
 
         {/* Main Content Area - Scrollable */}
-        <main className="flex-1 md:ml-72 px-5 py-3 relative z-10">
+        <main className="flex-1 md:ml-78 px-5 py-6 relative z-10">
           <div className="max-w-full">
             <Outlet />
           </div>

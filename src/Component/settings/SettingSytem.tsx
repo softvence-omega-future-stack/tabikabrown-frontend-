@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 
 import SubsCriptionTab from './SubscriptionTab';
 import AccountSetting from './AccountSetting';
+import { SystemIcon } from '../../assets/svgIcon/SystemIcon';
+import { AccountIcon } from '../../assets/svgIcon/AccountIcon';
+import { SubscriptionIcon } from '../../assets/svgIcon/SubscriptionIcon';
+
 
 interface SettingItemProps {
   title: string;
@@ -43,18 +47,9 @@ export default function AdminSettings() {
   const [reminderEmails, setReminderEmails] = useState(true);
 
   const tabs = [
-    { id: 'system' as TabType, label: 'System', icon: <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M9.19444 0.75L9.59309 1.49518C9.8626 1.99898 9.99736 2.25087 9.90825 2.35875C9.81914 2.46663 9.52568 2.37951 8.93874 2.20525C8.35194 2.03104 7.72892 1.9373 7.08333 1.9373C3.58553 1.9373 0.75 4.68897 0.75 8.08333C0.75 9.20279 1.05842 10.2524 1.59729 11.1563M4.97222 15.4167L4.57358 14.6715C4.30406 14.1677 4.1693 13.9158 4.2584 13.8079C4.34751 13.7 4.641 13.7872 5.22793 13.9614C5.81473 14.1356 6.43775 14.2294 7.08333 14.2294C10.5811 14.2294 13.4167 11.4777 13.4167 8.08333C13.4167 6.96387 13.1083 5.91432 12.5694 5.01032" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg> },
-    { id: 'subscription' as TabType, label: 'Subscription', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M5.78125 9.55258C5.78125 10.4126 6.44125 11.1059 7.26125 11.1059H8.93458C9.64792 11.1059 10.2279 10.4992 10.2279 9.75258C10.2279 8.93924 9.87458 8.65258 9.34792 8.46591L6.66125 7.53258C6.13458 7.34591 5.78125 7.05924 5.78125 6.24591C5.78125 5.49924 6.36125 4.89258 7.07458 4.89258H8.74792C9.56792 4.89258 10.2279 5.58591 10.2279 6.44591" stroke="#212B36" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M8 4V12" stroke="#212B36" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M8.00004 14.6673C11.6819 14.6673 14.6667 11.6825 14.6667 8.00065C14.6667 4.31875 11.6819 1.33398 8.00004 1.33398C4.31814 1.33398 1.33337 4.31875 1.33337 8.00065C1.33337 11.6825 4.31814 14.6673 8.00004 14.6673Z" stroke="#212B36" stroke-linecap="round" stroke-linejoin="round"/>
-</svg> },
-    { id: 'account' as TabType, label: 'Account Setting', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M8.10671 7.24732C8.04004 7.24065 7.96004 7.24065 7.88671 7.24732C6.30004 7.19398 5.04004 5.89398 5.04004 4.29398C5.04004 2.66065 6.36004 1.33398 8.00004 1.33398C9.63337 1.33398 10.96 2.66065 10.96 4.29398C10.9534 5.89398 9.69337 7.19398 8.10671 7.24732Z" stroke="#212B36" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M4.77335 9.70602C3.16002 10.786 3.16002 12.546 4.77335 13.6193C6.60669 14.846 9.61335 14.846 11.4467 13.6193C13.06 12.5393 13.06 10.7793 11.4467 9.70602C9.62002 8.48602 6.61335 8.48602 4.77335 9.70602Z" stroke="#212B36" stroke-linecap="round" stroke-linejoin="round"/>
-</svg> },
+    { id: 'system' as TabType, label: 'System', icon: <SystemIcon/>},
+    { id: 'subscription' as TabType, label: 'Subscription', icon: <SubscriptionIcon/> },
+    { id: 'account' as TabType, label: 'Account Setting', icon:<AccountIcon/> },
   ];
 
   const renderContent = () => {
@@ -112,7 +107,7 @@ export default function AdminSettings() {
             </h1>
 
             {/* Tabs */}
-            <div className="flex flex-wrap  lg:bg-[#F5F6FD] p-2 rounded-full max-w-lg gap-2 sm:gap-3">
+            <div className="flex flex-wrap  lg:bg-[#F5F6FD] p-2 rounded-full max-w-lg items-center justify-center gap-2 sm:gap-3">
               {tabs.map((tab) => {
             
                 const isActive = activeTab === tab.id;

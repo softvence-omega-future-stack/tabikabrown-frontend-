@@ -19,8 +19,8 @@ const AddProviderModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8">
+    <div className="fixed inset-0 z-50 flex items-center mt-20 justify-around bg-black/40 p-4">
+      <div className="relative w-full max-w-2xl max-h-[80vh]  overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8">
         
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
@@ -28,7 +28,7 @@ const AddProviderModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             <h2 className="text-xl md:ext-2xl font-medium  text-[#0A0A0A] leading-[120%] mb-2.5">Add New Provider</h2>
             <p className="text-base font-normal text-[#717182] leading-6">Set up Provider parameters</p>
           </div>
-          <button onClick={onClose} className="rounded-full p-1 hover:bg-slate-100 transition-colors">
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-slate-100 transition-colors cursor-pointer">
             <X className="h-5 w-5 text-slate-400" />
           </button>
         </div>

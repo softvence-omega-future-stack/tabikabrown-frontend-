@@ -1,6 +1,9 @@
-import React from 'react';
+import React, {  useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutGrid, Users, Globe, UserSquare2, BarChart3, Settings, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Users,  Settings, ChevronDown } from 'lucide-react';
+import { ContetManagmentIcon } from '../assets/svgIcon/ContetManagmentIcon';
+import { ProviderIcon } from '../assets/svgIcon/ProviderIcon';
+import { AnalyticsIcon } from '../assets/svgIcon/AnalyticsIcon';
 
 // Define the structure for our navigation items
 interface NavItem {
@@ -16,10 +19,10 @@ const Sidebar: React.FC = () => {
 
   const menuItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutGrid size={20} />, path: '/dashboard' },
-    { id: 'users', label: 'User\nManagement', icon: <Users size={20} />, path: '/dashboard/users-managment' },
-    { id: 'content', label: 'Content\nManagement', icon: <Globe size={20} />, path: '/dashboard/content-managment' },
-    { id: 'provider', label: 'Provider\nManagement', icon: <UserSquare2 size={20} />, path: '/dashboard/provider-managment' },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, path: '/dashboard/analytics' },
+    { id: 'users', label: 'User Management', icon: <Users size={20} />, path: '/dashboard/users-managment' },
+    { id: 'content', label: 'Content Management', icon: <ContetManagmentIcon/>, path: '/dashboard/content-managment' },
+    { id: 'provider', label: 'Provider Management', icon: <ProviderIcon/>, path: '/dashboard/provider-managment' },
+    { id: 'analytics', label: 'Analytics', icon: <AnalyticsIcon />, path: '/dashboard/analytics' },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, path: '/dashboard/settings' },
   ];
 
@@ -28,52 +31,182 @@ const Sidebar: React.FC = () => {
     return location.pathname === path;
   };
 
-  return (
-    <div className="w-64 bg-white rounded-[20px] min-h-screen border-r border-gray-400 flex flex-col py-7.5 px-2">
-    
+const [open, setOpen] = useState(false);
+const dropdownRef = useRef(null);
 
-      {/* Navigation Links */}
-      <nav className="flex-1 space-y-2">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
-              isActive(item.path)
-                ? 'bg-[#8B78F6] text-white shadow-lg shadow-purple-100'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex-shrink-0">
-              {item.icon}
-            </div>
-            <span className="ml-2 font-semibold text[15px] font-inter leading-7">
-              {item.label}
-            </span>
-          </button>
-        ))}
+// useEffect(() => {
+//   const handleClickOutside = (e) => {
+//     if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+//       setOpen(false);
+//     }
+//   };
+
+//   document.addEventListener("mousedown", handleClickOutside);
+//   return () => document.removeEventListener("mousedown", handleClickOutside);
+// }, []);
+
+
+
+  return (
+    <div className="w-full h-full bg-white rounded-[20px] border border-gray-200 flex flex-col shadow-lg overflow-hidden">
+      
+      {/* Navigation Links - Scrollable Area */}
+      <nav className="flex-1 overflow-y-auto px-3 pt-6 pb-2">
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`w-full flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                isActive(item.path)
+                  ? 'bg-[#8B78F6] text-white shadow-lg shadow-purple-100'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <div className="shrink-0">
+                {item.icon}
+              </div>
+              <span className="font-semibold text-[15px] font-inter leading-tight whitespace-pre-line text-left">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </nav>
 
-      {/* Profile Section */}
-    <div className="pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
-        <div className="flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-[#8B78F6] flex items-center justify-center text-white font-semibold">
-            J
-          </div>
+{/* Profile Section - Fixed at Bottom */}
+<div ref={dropdownRef} className="border-t border-gray-200 px-3 py-4 bg-white flex-shrink-0">
 
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-textColor leading-5.5">John Doe</p>
-            <p className="text-xs font-normal leading-3 text-gray-700">Admin</p>
-          </div>
+  <div className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors">
+    
+    <div className="w-10 h-10 rounded-full bg-[#8B78F6] flex items-center justify-center text-white font-semibold flex-shrink-0">
+      J
+    </div>
 
-          <ChevronDown size={16} className="text-gray-400" />
-        </div>
-      </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
+      <p className="text-xs text-gray-500">Admin</p>
+    </div>
+
+    {/* ONLY icon clickable */}
+    <button
+      onClick={() => setOpen(!open)}
+      className="p-1 cursor-pointer"
+    >
+      <ChevronDown
+        size={16}
+        className={`text-gray-400 transition-transform cursor-pointer${
+          open ? "rotate-180" : ""
+        }`}
+      />
+    </button>
+  </div>
+
+  {/* Inline profile option */}
+  {open && (
+    <div className="mt-2 ">
+      <button onClick={(()=> navigate('/dashboard/profile'))} className="font-normal text-[15px] text-activeBtnColor font-inter leading-tight whitespace-pre-line text-left ml-12 cursor-pointer">
+        Profile
+      </button>
+    </div>
+  )}
+</div>
+
     </div>
   );
 };
 
 export default Sidebar;
+
+
+
+
+
+
+
+
+
+
+
+// import React from 'react';
+// import { useNavigate, useLocation } from 'react-router-dom';
+// import { LayoutGrid, Users, Globe, UserSquare2, BarChart3, Settings, ChevronDown } from 'lucide-react';
+
+
+// // Define the structure for our navigation items
+// interface NavItem {
+//   id: string;
+//   label: string;
+//   icon: React.ReactNode;
+//   path: string;
+// }
+
+// const Sidebar: React.FC = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const menuItems: NavItem[] = [
+//     { id: 'dashboard', label: 'Dashboard', icon: <LayoutGrid size={20} />, path: '/dashboard' },
+//     { id: 'users', label: 'User\nManagement', icon: <Users size={20} />, path: '/dashboard/users-managment' },
+//     { id: 'content', label: 'Content\nManagement', icon: <Globe size={20} />, path: '/dashboard/content-managment' },
+//     { id: 'provider', label: 'Provider\nManagement', icon: <UserSquare2 size={20} />, path: '/dashboard/provider-managment' },
+//     { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, path: '/dashboard/analytics' },
+//     { id: 'settings', label: 'Settings', icon: <Settings size={20} />, path: '/dashboard/settings' },
+//   ];
+
+//   // Function to check if the current path matches the item path
+//   const isActive = (path: string) => {
+//     return location.pathname === path;
+//   };
+
+//   return (
+//     <div className="w-72 bg-white rounded-[20px] min-h-screen border-r border-gray-400 flex flex-col py-7.5 px-2">
+    
+
+//       {/* Navigation Links */}
+//       <nav className="flex-1 space-y-2">
+//         {menuItems.map((item) => (
+//           <button
+//             key={item.id}
+//             onClick={() => navigate(item.path)}
+//             className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+//               isActive(item.path)
+//                 ? 'bg-[#8B78F6] text-white shadow-lg shadow-purple-100'
+//                 : 'text-gray-600 hover:bg-gray-50'
+//             }`}
+//           >
+//             <div className="flex-shrink-0">
+//               {item.icon}
+//             </div>
+//             <span className="ml-2 font-semibold text[15px] font-inter leading-7">
+//               {item.label}
+//             </span>
+//           </button>
+//         ))}
+//       </nav>
+
+//       {/* Profile Section */}
+//     <div className="pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
+//         <div className="flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer">
+//           <div className="w-10 h-10 rounded-full bg-[#8B78F6] flex items-center justify-center text-white font-semibold">
+//             J
+//           </div>
+
+//           <div className="ml-3 flex-1">
+//             <p className="text-sm font-medium text-textColor leading-5.5">John Doe</p>
+//             <p className="text-xs font-normal leading-3 text-gray-700">Admin</p>
+//           </div>
+
+//           <ChevronDown size={16} className="text-gray-400" />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;  
+
+
 
 
 // // "use client";
