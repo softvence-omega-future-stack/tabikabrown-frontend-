@@ -1,85 +1,104 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from 'react';
 import loginImg from '../../public/images/loginImg.png'
-import loginBotom  from '../../public/images/loginBottom.svg'
+import loginBotom from '../../public/images/loginBottom.svg'
 import logo from '../../public/images/logo.png'
 import { useNavigate } from 'react-router-dom';
+import { useLoginMutation } from '../redux/features/auth/authAPi';
+import { toast } from 'react-toastify';
+
+import { setCredentials } from '../redux/features/auth/authSlice'; 
+import { useAppDispatch } from '../redux/hook';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate()
+  const dispatch = useAppDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [login, { isLoading }] = useLoginMutation();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const res = await login({ email, password }).unwrap();
+      
+      // ✅ Save user + token in Redux (adjust action name based on your slice)
+      dispatch(setCredentials({ user: res.user, token: res.token }));
+      
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Login failed");
+    }
+  };
+
   return (
-    <div className="h-screen flex items-center justify-center p-4 md:p-6  font-sans">
+    <div className="h-screen flex items-center justify-center p-4 md:p-6 font-sans">
       
       {/* Main Container */}
-      <div className="relative w-full h-full  bg-[#311E69]  rounded-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="relative w-full h-full bg-[#311E69] rounded-2xl overflow-hidden flex flex-col md:flex-row">
         
         {/* LEFT SIDE: Illustration & Logo */}
         <div className="relative flex-1 hidden md:flex flex-col p-8 lg:p-12">
-          {/* Logo - Positioned with proper padding */}
+          {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
             <div className="">
-               <img src={logo} alt="" className='h-12 w-12' />
+              <img src={logo} alt="Logo" className='h-12 w-12' />
             </div>
           </div>
 
-          {/* Character Illustration - Centered vertically */}
+          {/* Character Illustration */}
           <div className="flex justify-center items-center flex-1 overflow-hidden">
             <div className="relative w-full max-w-md flex items-center justify-center" style={{ maxHeight: 'calc(100vh - 280px)' }}>
-               <img 
+              <img 
                 src={loginImg}
                 alt="Illustration" 
                 className="w-auto h-auto max-h-full max-w-full object-contain"
-               />
+              />
             </div>
           </div>
 
-     
+          {/* THE BOTTOM LEFT TAB */}
+          <div className="absolute bottom-0 left-0 bg-white rounded-tr-[50px] pt-5 pr-12 pl-8 pb-5 flex items-center gap-4">
+            
+            {/* TOP-LEFT INVERTED CURVE */}
+            <div className="absolute -top-[40px] left-0 w-[40px] h-[40px] pointer-events-none">
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 40H0V0C0 22.0914 17.9086 40 40 40Z" fill="white" />
+              </svg>
+            </div>
 
+            {/* BOTTOM-RIGHT INVERTED CURVE */}
+            <div className="absolute bottom-0 -right-[40px] w-[40px] h-[40px] pointer-events-none">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0V0C0 22.0914 17.9086 40 40 40H0V0Z" fill="white"/>
+              </svg>
+            </div>
 
-{/* THE BOTTOM LEFT TAB */}
-<div className="absolute bottom-0 left-0 bg-white rounded-tr-[50px] pt-5 pr-12 pl-8 pb-5 flex items-center gap-4">
-  
+            {/* Profile Image */}
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-gray-100">
+              <img src={loginBotom} alt="avatar" className="w-full h-full object-cover" />
+            </div>
 
-{/* --- TOP-LEFT INVERTED CURVE --- */}
-<div className="absolute -top-[40px] left-0 w-[40px] h-[40px] pointer-events-none">
-  <svg
-    width="40"
-    height="40"
-    viewBox="0 0 40 40"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    {/* Ei path-ti dark background-ke round curve korbe */}
-    <path
-      d="M40 40H0V0C0 22.0914 17.9086 40 40 40Z"
-      fill="white"
-    />
-  </svg>
-</div>
+            {/* Vertical Line */}
+            <div className="w-[3px] h-10 bg-[#311E69] rounded-full opacity-80"></div>
 
-
-
-  {/* --- BOTTOM-RIGHT INVERTED CURVE (OUTWARD) --- */}
-  <div className="absolute bottom-0 -right-[40px] w-[40px] h-[40px] pointer-events-none">
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 0V0C0 22.0914 17.9086 40 40 40H0V0Z" fill="white"/>
-    </svg>
-  </div>
-
-  {/* Left Profile Image */}
-  <div className="w-12 h-12 rounded-full  overflow-hidden shrink-0 border-2 border-gray-100">
-    <img src={loginBotom} alt="avatar" className="w-full h-full object-cover" />
-  </div>
-
-  {/* Vertical Line */}
-  <div className="w-[3px] h-10 bg-[#311E69] rounded-full opacity-80"></div>
-
-  {/* Text Content */}
-  <div className="flex flex-col">
-    <h4 className="text-[#311E69] font-bold text-sm leading-tight">Get Everything You Need</h4>
-    <p className="text-gray-500 text-[10px] md:text-xs mt-0.5">
-       Log in to continue your journey and access all features.
-    </p>
-  </div>
-</div>
+            {/* Text Content */}
+            <div className="flex flex-col">
+              <h4 className="text-[#311E69] font-bold text-sm leading-tight">Get Everything You Need</h4>
+              <p className="text-gray-500 text-[10px] md:text-xs mt-0.5">
+                Log in to continue your journey and access all features.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* RIGHT SIDE: Login Card */}
@@ -90,13 +109,16 @@ const LoginPage: React.FC = () => {
               <p className="text-gray-700 text-base font-normal leading-6 mt-2">Login to your account and get started</p>
             </div>
 
-            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm md:text-base font-normal leading-6 text-gray-800 mb-2">E-mail:</label>
                 <input 
                   type="email" 
-                  placeholder="e.g. example@email.com" 
-                  className="w-full px-4 py-3 rounded-xl text-gray-500 leading-5 bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all"
+                  placeholder="e.g. example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 rounded-xl text-gray-500 leading-5 bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all disabled:opacity-50"
                 />
               </div>
 
@@ -104,11 +126,18 @@ const LoginPage: React.FC = () => {
                 <label className="block text-sm md:text-base font-normal leading-6 text-gray-800 mb-2">Password:</label>
                 <div className="relative">
                   <input 
-                    type="password" 
-                    placeholder="Type your password" 
-                    className="w-full px-4 py-3 text-gray-500 leading-5 rounded-xl bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Type your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full px-4 py-3 text-gray-500 leading-5 rounded-xl bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all disabled:opacity-50"
                   />
-                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#7c6ff6] transition-colors">
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#7c6ff6] transition-colors"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -122,15 +151,23 @@ const LoginPage: React.FC = () => {
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#7c6ff6] focus:ring-[#7c6ff6]" />
                   <span className="text-sm text-gray-700 leading-5 font-normal">Remember</span>
                 </label>
-                <button onClick={()=> navigate('/forget_password')} className="text-sm text-rose-400 hover:text-rose-500 font-normal cursor-pointer leading-5.5 transition-colors">Forgot Password</button>
+                <button 
+                  type="button"
+                  onClick={() => navigate('/forget_password')}
+                  className="text-sm text-rose-400 hover:text-rose-500 font-normal cursor-pointer leading-5.5 transition-colors"
+                >
+                  Forgot Password
+                </button>
               </div>
 
-              <button onClick={()=> navigate('/dashboard')} className="w-full text-base sm:text-lg font-semibold bg-[#7c6ff6] hover:bg-[#6b5ee5] text-white leading-[150%] cursor-pointer py-3.5 rounded-xl shadow-lg shadow-indigo-300/50 transition-all mt-6 transform active:scale-[0.98]">
-                Login
+              <button 
+                type="submit"
+                disabled={isLoading}
+                className="w-full text-base sm:text-lg font-semibold bg-[#7c6ff6] hover:bg-[#6b5ee5] text-white leading-[150%] cursor-pointer py-3.5 rounded-xl shadow-lg shadow-indigo-300/50 transition-all mt-6 transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? "Logging in..." : "Login"}
               </button>
             </form>
-
-        
           </div>
         </div>
 
@@ -146,6 +183,192 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
+
+
+
+
+
+
+
+
+// import React, { useState } from 'react';
+// import loginImg from '../../public/images/loginImg.png'
+// import loginBotom  from '../../public/images/loginBottom.svg'
+// import logo from '../../public/images/logo.png'
+// import { useNavigate } from 'react-router-dom';
+// import { useLoginMutation } from '../redux/features/auth/authAPi';
+// import { toast } from 'react-toastify';
+// import { useDispatch } from 'react-redux';
+
+// const LoginPage: React.FC = () => {
+//     const dispatch = useDispatch();
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//     const [login, { isLoading }] = useLoginMutation();
+
+//   const navigate = useNavigate()
+
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     try {
+//       const res = await login({ email, password }).unwrap();
+//       // Save user + token in Redux
+//       dispatch(loginRedux({ user: res.user, token: res.token }));
+      
+//       // ✅ Success toast
+//       toast.success("Login successful!");
+      
+//       navigate("/dashboard"); // Redirect after login
+//     } catch (err: any) {
+//       // ✅ Error toast
+//       toast.error(err.data?.message || "Login failed");
+//     }
+//   };
+//   return (
+//     <div className="h-screen flex items-center justify-center p-4 md:p-6  font-sans">
+      
+//       {/* Main Container */}
+//       <div className="relative w-full h-full  bg-[#311E69]  rounded-2xl overflow-hidden flex flex-col md:flex-row">
+        
+//         {/* LEFT SIDE: Illustration & Logo */}
+//         <div className="relative flex-1 hidden md:flex flex-col p-8 lg:p-12">
+//           {/* Logo - Positioned with proper padding */}
+//           <div className="flex items-center gap-2 mb-8">
+//             <div className="">
+//                <img src={logo} alt="" className='h-12 w-12' />
+//             </div>
+//           </div>
+
+//           {/* Character Illustration - Centered vertically */}
+//           <div className="flex justify-center items-center flex-1 overflow-hidden">
+//             <div className="relative w-full max-w-md flex items-center justify-center" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+//                <img 
+//                 src={loginImg}
+//                 alt="Illustration" 
+//                 className="w-auto h-auto max-h-full max-w-full object-contain"
+//                />
+//             </div>
+//           </div>
+
+     
+
+
+// {/* THE BOTTOM LEFT TAB */}
+// <div className="absolute bottom-0 left-0 bg-white rounded-tr-[50px] pt-5 pr-12 pl-8 pb-5 flex items-center gap-4">
+  
+
+// {/* --- TOP-LEFT INVERTED CURVE --- */}
+// <div className="absolute -top-[40px] left-0 w-[40px] h-[40px] pointer-events-none">
+//   <svg
+//     width="40"
+//     height="40"
+//     viewBox="0 0 40 40"
+//     xmlns="http://www.w3.org/2000/svg"
+//   >
+//     {/* Ei path-ti dark background-ke round curve korbe */}
+//     <path
+//       d="M40 40H0V0C0 22.0914 17.9086 40 40 40Z"
+//       fill="white"
+//     />
+//   </svg>
+// </div>
+
+
+
+//   {/* --- BOTTOM-RIGHT INVERTED CURVE (OUTWARD) --- */}
+//   <div className="absolute bottom-0 -right-[40px] w-[40px] h-[40px] pointer-events-none">
+//     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+//       <path d="M0 0V0C0 22.0914 17.9086 40 40 40H0V0Z" fill="white"/>
+//     </svg>
+//   </div>
+
+//   {/* Left Profile Image */}
+//   <div className="w-12 h-12 rounded-full  overflow-hidden shrink-0 border-2 border-gray-100">
+//     <img src={loginBotom} alt="avatar" className="w-full h-full object-cover" />
+//   </div>
+
+//   {/* Vertical Line */}
+//   <div className="w-[3px] h-10 bg-[#311E69] rounded-full opacity-80"></div>
+
+//   {/* Text Content */}
+//   <div className="flex flex-col">
+//     <h4 className="text-[#311E69] font-bold text-sm leading-tight">Get Everything You Need</h4>
+//     <p className="text-gray-500 text-[10px] md:text-xs mt-0.5">
+//        Log in to continue your journey and access all features.
+//     </p>
+//   </div>
+// </div>
+//         </div>
+
+//         {/* RIGHT SIDE: Login Card */}
+//         <div className="flex-1 flex items-center justify-center p-6 md:p-8 lg:p-12">
+//           <div className="bg-white w-full max-w-md h-[600px] rounded-[30px] p-8 lg:p-10 flex flex-col justify-center shadow-2xl">
+//             <div className="text-center mb-8">
+//               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-[130%]">Welcome back!</h2>
+//               <p className="text-gray-700 text-base font-normal leading-6 mt-2">Login to your account and get started</p>
+//             </div>
+
+//             <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+//               <div>
+//                 <label className="block text-sm md:text-base font-normal leading-6 text-gray-800 mb-2">E-mail:</label>
+//                 <input 
+//                   type="email" 
+//                   placeholder="e.g. example@email.com" 
+//                   className="w-full px-4 py-3 rounded-xl text-gray-500 leading-5 bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all"
+//                 />
+//               </div>
+
+//               <div>
+//                 <label className="block text-sm md:text-base font-normal leading-6 text-gray-800 mb-2">Password:</label>
+//                 <div className="relative">
+//                   <input 
+//                     type="password" 
+//                     placeholder="Type your password" 
+//                     className="w-full px-4 py-3 text-gray-500 leading-5 rounded-xl bg-slate-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7c6ff6] focus:border-transparent text-sm transition-all"
+//                   />
+//                   <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#7c6ff6] transition-colors">
+//                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+//                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+//                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+//                     </svg>
+//                   </button>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center justify-between pt-1">
+//                 <label className="flex items-center gap-2 cursor-pointer">
+//                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#7c6ff6] focus:ring-[#7c6ff6]" />
+//                   <span className="text-sm text-gray-700 leading-5 font-normal">Remember</span>
+//                 </label>
+//                 <button onClick={()=> navigate('/forget_password')} className="text-sm text-rose-400 hover:text-rose-500 font-normal cursor-pointer leading-5.5 transition-colors">Forgot Password</button>
+//               </div>
+
+//               <button onClick={()=> navigate('/dashboard')} className="w-full text-base sm:text-lg font-semibold bg-[#7c6ff6] hover:bg-[#6b5ee5] text-white leading-[150%] cursor-pointer py-3.5 rounded-xl shadow-lg shadow-indigo-300/50 transition-all mt-6 transform active:scale-[0.98]">
+//                    {isLoading ? "Logging in..." : "Login"}
+//               </button>
+//             </form>
+
+        
+//           </div>
+//         </div>
+
+//         {/* FOOTER TEXT */}
+//         <div className="absolute bottom-3 right-6 lg:bottom-6 2xl:right-65 hidden md:block">
+//           <p className="text-sm sm:text-base font-medium leading-5 text-white tracking-wide">
+//             ©2026 All Rights Reserved MALI. Privacy Terms of Service.
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default LoginPage;
 
 
 
