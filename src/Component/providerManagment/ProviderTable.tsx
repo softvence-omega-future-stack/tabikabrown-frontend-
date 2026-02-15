@@ -1,84 +1,30 @@
-import { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useState,  } from 'react';
 import { Search, ChevronDown, MoreVertical, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import userImg from '../../../public/images/user.png';
 import AddProviderModal from './AddProviderModal';
+import { 
+  useGetProvidersQuery, 
+  useDeleteProviderMutation,
+  useUpdateProviderMutation 
+} from '../../redux/features/admin/providerApi';
 
 interface Provider {
   id: number;
   name: string;
-  credentials: string;
-  email: string;
-  specialist: string;
-  location: string;
-  distance: string;
-  contact: string;
-  status: 'Active' | 'Inactive';
   image: string;
+  provider_category: string;
+  designation: string;
+  specializations: string;
+  email: string;
+  phone: string;
+  website?: string;
+  address: string;
+  city?: string;
+  status?: boolean;
+  office_hours?: any;
 }
-
-// Initial providers
-const initialProviders: Provider[] = [
-  {
-    id: 1,
-    name: 'Dr. Sarah Mitchell',
-    credentials: 'MD, MAPS',
-    email: 'info@drmitchell.com',
-    specialist: 'MAPS Doctor',
-    location: 'San Francisco, CA 94102',
-    distance: '2.5 mi',
-    contact: '(555) 123-4567',
-    status: 'Active',
-    image: userImg
-  },
-  {
-    id: 2,
-    name: 'John Doe',
-    credentials: '',
-    email: 'john.doe@example.com',
-    specialist: 'DANI Practitioner',
-    location: 'San Francisco, CA 94102',
-    distance: '2.5 mi',
-    contact: '(555) 123-4567',
-    status: 'Active',
-    image: userImg
-  },
-  {
-    id: 3,
-    name: 'Jane Smith',
-    credentials: '',
-    email: 'jane.smith@example.com',
-    specialist: 'Functional Medicine',
-    location: 'San Francisco, CA 94102',
-    distance: '2.5 mi',
-    contact: '(555) 987-6543',
-    status: 'Inactive',
-    image: userImg
-  },
-  {
-    id: 4,
-    name: 'Mike Johnson',
-    credentials: '',
-    email: 'mike.johnson@example.com',
-    specialist: 'Nutritionist',
-    location: 'San Francisco, CA 94102',
-    distance: '3.0 mi',
-    contact: '(555) 555-1234',
-    status: 'Active',
-    image: userImg
-  },
-  {
-    id: 5,
-    name: 'Alice Brown',
-    credentials: '',
-    email: 'alice.brown@example.com',
-    specialist: 'MAPS Doctor',
-    location: 'San Francisco, CA 94102',
-    distance: '4.2 mi',
-    contact: '(555) 321-9876',
-    status: 'Inactive',
-    image: userImg
-  }
-];
 
 // Specialist colors
 const getSpecialistColor = (specialist: string): string => {
@@ -92,44 +38,85 @@ const getSpecialistColor = (specialist: string): string => {
 };
 
 export default function ProviderTable() {
-  const [providers, setProviders] = useState<Provider[]>(initialProviders);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
   const [specialistFilter, setSpecialistFilter] = useState<'All' | string>('All');
   const [actionOpen, setActionOpen] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
-  const itemsPerPage = 3; // number of rows per page
+  // 🔥 API Hooks - এখানে data fetch হচ্ছে
+  const { data: providersData, isLoading, refetch } = useGetProvidersQuery({ 
+    page: currentPage, 
+    search: searchTerm 
+  });
+  
+  const [deleteProvider] = useDeleteProviderMutation();
+  const [updateProvider] = useUpdateProviderMutation();
 
+  const itemsPerPage = 10;
 
-      const [isModalOpen, setIsModalOpen] = useState(false);
-const [isEdit, setIsEdit] = useState(false);
-const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  // 🔥 API থেকে data নিয়ে আসছি
+  const providers = providersData?.results || [];
 
-  const handleSuspend = (id: number) => {
-    setProviders((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: 'Inactive' } : p))
-    );
-    setActionOpen(null);
+  // Handle Suspend (Status Update)
+  const handleSuspend = async (id: number) => {
+    try {
+      await updateProvider({
+        id,
+        data: { status: false } // Inactive করে দিচ্ছি
+      }).unwrap();
+      
+      alert('Provider suspended successfully!');
+      refetch(); // Data refresh
+      setActionOpen(null);
+    } catch (error) {
+      console.error('Failed to suspend provider:', error);
+      alert('Failed to suspend provider');
+    }
   };
 
-  // Filter providers based on search + filters
-  const filteredProviders = providers.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || p.status === statusFilter;
-    const matchesSpecialist = specialistFilter === 'All' || p.specialist === specialistFilter;
-    return matchesSearch && matchesStatus && matchesSpecialist;
+  // Handle Delete
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this provider?')) return;
+    
+    try {
+      await deleteProvider(id).unwrap();
+      alert('Provider deleted successfully!');
+      refetch(); // Data refresh
+      setActionOpen(null);
+    } catch (error) {
+      console.error('Failed to delete provider:', error);
+      alert('Failed to delete provider');
+    }
+  };
+
+  // Filter providers based on status and specialist
+  const filteredProviders = providers.filter((p: Provider) => {
+    const matchesStatus = statusFilter === 'All' || 
+      (statusFilter === 'Active' ? p.status : !p.status);
+    const matchesSpecialist = specialistFilter === 'All' || 
+      p.provider_category === specialistFilter;
+    return matchesStatus && matchesSpecialist;
   });
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
-  const paginatedProviders = filteredProviders.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil((providersData?.count || 0) / itemsPerPage);
 
   // Unique specialist list for dropdown
-  const specialistOptions = ['All', ...Array.from(new Set(providers.map(p => p.specialist)))];
+  const specialistOptions = ['All', ...Array.from(new Set(providers.map((p: Provider) => p.provider_category)))];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="mt-6 flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading providers...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6">
@@ -144,23 +131,27 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
                 type="text"
                 placeholder="Search providers..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset to page 1 on search
+                }}
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
-               <div>
-          <button
-               onClick={() => {
-    setIsEdit(false);          
-    setSelectedProvider(null); 
-    setIsModalOpen(true);     
-  }}
-            className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer"
-          >
-            <Plus className="w-5 h-5" />
-            Add New
-          </button>
-      </div>
+            
+            <div>
+              <button
+                onClick={() => {
+                  setIsEdit(false);          
+                  setSelectedProvider(null); 
+                  setIsModalOpen(true);     
+                }}
+                className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer hover:bg-violet-700 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                Add New
+              </button>
+            </div>
 
             {/* Specialist Dropdown */}
             <div className="relative">
@@ -197,57 +188,64 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th>Profile</th>
-                <th>Provider</th>
-                <th>Specialist</th>
-                <th>Location</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialist</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedProviders.map((provider) => (
+              {filteredProviders.map((provider: Provider) => (
                 <tr key={provider.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
-                    <img className="w-10 h-10 rounded-full" src={provider.image} alt="" />
+                    <img 
+                      className="w-10 h-10 rounded-full object-cover" 
+                      src={provider.image || userImg} 
+                      alt={provider.name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = userImg;
+                      }}
+                    />
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span>{provider.name}</span>
-                      <span>{provider.credentials || provider.email}</span>
+                      <span className="font-medium text-gray-900">{provider.name}</span>
+                      <span className="text-sm text-gray-500">{provider.designation || provider.email}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex py-2 px-4 rounded-full text-xs font-medium ${getSpecialistColor(
-                        provider.specialist
+                        provider.provider_category
                       )}`}
                     >
-                      {provider.specialist}
+                      {provider.provider_category}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span>{provider.location}</span>
-                      <span>{provider.distance}</span>
+                      <span className="text-sm text-gray-900">{provider.address}</span>
+                      <span className="text-sm text-gray-500">{provider.city}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span>{provider.contact}</span>
-                      <span>{provider.email}</span>
+                      <span className="text-sm text-gray-900">{provider.phone}</span>
+                      <span className="text-sm text-gray-500">{provider.email}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                        provider.status === 'Active'
+                        provider.status
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
                       }`}
                     >
-                      {provider.status}
+                      {provider.status ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="px-6 py-4 relative">
@@ -263,20 +261,20 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
                     {/* Action Dropdown */}
                     {actionOpen === provider.id && (
                       <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                            <button
-                          className="w-full px-4 py-2 text-left text-sm text-yellow-600 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => {
-    setIsEdit(true);
-    setSelectedProvider(provider);
-    setIsModalOpen(true);
-    setActionOpen(null);
-  }}
+                        <button
+                          className="w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            setIsEdit(true);
+                            setSelectedProvider(provider);
+                            setIsModalOpen(true);
+                            setActionOpen(null);
+                          }}
                         >
                           Edit
                         </button>
                         <button
                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        
+                          onClick={() => handleDelete(provider.id)}
                         >
                           Delete
                         </button>
@@ -293,14 +291,27 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
               ))}
             </tbody>
           </table>
- {isModalOpen && (
-  <AddProviderModal
-    isOpen={isModalOpen}
-    onClose={() => setIsModalOpen(false)}
-    isEdit={isEdit}
-    providerData={selectedProvider}
-  />
-)}
+
+          {/* Empty State */}
+          {filteredProviders.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No providers found
+            </div>
+          )}
+
+          {/* Modal */}
+          {isModalOpen && (
+            <AddProviderModal
+              isOpen={isModalOpen}
+              onClose={() => {
+                setIsModalOpen(false);
+                setSelectedProvider(null);
+                refetch(); // Refresh data after modal closes
+              }}
+              isEdit={isEdit}
+              providerData={selectedProvider}
+            />
+          )}
         </div>
 
         {/* Pagination */}
@@ -308,7 +319,7 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
+            className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -328,7 +339,7 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
+            className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -336,7 +347,360 @@ const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
       </div>
     </div>
   );
-} 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { useState } from 'react';
+// import { Search, ChevronDown, MoreVertical, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+// import userImg from '../../../public/images/user.png';
+// import AddProviderModal from './AddProviderModal';
+
+// interface Provider {
+//   id: number;
+//   name: string;
+//   credentials: string;
+//   email: string;
+//   specialist: string;
+//   location: string;
+//   distance: string;
+//   contact: string;
+//   status: 'Active' | 'Inactive';
+//   image: string;
+// }
+
+// // Initial providers
+// const initialProviders: Provider[] = [
+//   {
+//     id: 1,
+//     name: 'Dr. Sarah Mitchell',
+//     credentials: 'MD, MAPS',
+//     email: 'info@drmitchell.com',
+//     specialist: 'MAPS Doctor',
+//     location: 'San Francisco, CA 94102',
+//     distance: '2.5 mi',
+//     contact: '(555) 123-4567',
+//     status: 'Active',
+//     image: userImg
+//   },
+//   {
+//     id: 2,
+//     name: 'John Doe',
+//     credentials: '',
+//     email: 'john.doe@example.com',
+//     specialist: 'DANI Practitioner',
+//     location: 'San Francisco, CA 94102',
+//     distance: '2.5 mi',
+//     contact: '(555) 123-4567',
+//     status: 'Active',
+//     image: userImg
+//   },
+//   {
+//     id: 3,
+//     name: 'Jane Smith',
+//     credentials: '',
+//     email: 'jane.smith@example.com',
+//     specialist: 'Functional Medicine',
+//     location: 'San Francisco, CA 94102',
+//     distance: '2.5 mi',
+//     contact: '(555) 987-6543',
+//     status: 'Inactive',
+//     image: userImg
+//   },
+//   {
+//     id: 4,
+//     name: 'Mike Johnson',
+//     credentials: '',
+//     email: 'mike.johnson@example.com',
+//     specialist: 'Nutritionist',
+//     location: 'San Francisco, CA 94102',
+//     distance: '3.0 mi',
+//     contact: '(555) 555-1234',
+//     status: 'Active',
+//     image: userImg
+//   },
+//   {
+//     id: 5,
+//     name: 'Alice Brown',
+//     credentials: '',
+//     email: 'alice.brown@example.com',
+//     specialist: 'MAPS Doctor',
+//     location: 'San Francisco, CA 94102',
+//     distance: '4.2 mi',
+//     contact: '(555) 321-9876',
+//     status: 'Inactive',
+//     image: userImg
+//   }
+// ];
+
+// // Specialist colors
+// const getSpecialistColor = (specialist: string): string => {
+//   const colors: Record<string, string> = {
+//     'MAPS Doctor': 'bg-purple-100 text-purple-600',
+//     'DANI Practitioner': 'bg-purple-100 text-purple-600',
+//     'Functional Medicine': 'bg-purple-100 text-purple-600',
+//     'Nutritionist': 'bg-purple-100 text-purple-600'
+//   };
+//   return colors[specialist] || 'bg-gray-100 text-gray-700';
+// };
+
+// export default function ProviderTable() {
+//   const [providers, setProviders] = useState<Provider[]>(initialProviders);
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
+//   const [specialistFilter, setSpecialistFilter] = useState<'All' | string>('All');
+//   const [actionOpen, setActionOpen] = useState<number | null>(null);
+//   const [currentPage, setCurrentPage] = useState(1);
+
+//   const itemsPerPage = 3; // number of rows per page
+
+
+//       const [isModalOpen, setIsModalOpen] = useState(false);
+// const [isEdit, setIsEdit] = useState(false);
+// const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+
+//   const handleSuspend = (id: number) => {
+//     setProviders((prev) =>
+//       prev.map((p) => (p.id === id ? { ...p, status: 'Inactive' } : p))
+//     );
+//     setActionOpen(null);
+//   };
+
+//   // Filter providers based on search + filters
+//   const filteredProviders = providers.filter((p) => {
+//     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+//     const matchesStatus = statusFilter === 'All' || p.status === statusFilter;
+//     const matchesSpecialist = specialistFilter === 'All' || p.specialist === specialistFilter;
+//     return matchesSearch && matchesStatus && matchesSpecialist;
+//   });
+
+//   // Pagination logic
+//   const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
+//   const paginatedProviders = filteredProviders.slice(
+//     (currentPage - 1) * itemsPerPage,
+//     currentPage * itemsPerPage
+//   );
+
+//   // Unique specialist list for dropdown
+//   const specialistOptions = ['All', ...Array.from(new Set(providers.map(p => p.specialist)))];
+
+//   return (
+//     <div className="mt-6">
+//       <div className="bg-white rounded-2xl shadow-lg overflow-hidden p-4 md:p-6">
+//         {/* Header Filters */}
+//         <div className="flex flex-col xl:flex-row gap-4 justify-between items-center mb-4">
+//           <div className="flex flex-1 gap-4">
+//             {/* Search */}
+//             <div className="relative flex-1">
+//               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+//               <input
+//                 type="text"
+//                 placeholder="Search providers..."
+//                 value={searchTerm}
+//                 onChange={(e) => setSearchTerm(e.target.value)}
+//                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+//               />
+//             </div>
+//                <div>
+//           <button
+//                onClick={() => {
+//     setIsEdit(false);          
+//     setSelectedProvider(null); 
+//     setIsModalOpen(true);     
+//   }}
+//             className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer"
+//           >
+//             <Plus className="w-5 h-5" />
+//             Add New
+//           </button>
+//       </div>
+
+//             {/* Specialist Dropdown */}
+//             <div className="relative">
+//               <select
+//                 className="appearance-none flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+//                 value={specialistFilter}
+//                 onChange={(e) => setSpecialistFilter(e.target.value)}
+//               >
+//                 {specialistOptions.map((s) => (
+//                   <option key={s} value={s}>{s}</option>
+//                 ))}
+//               </select>
+//               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+//             </div>
+
+//             {/* Status Dropdown */}
+//             <div className="relative">
+//               <select
+//                 className="appearance-none flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+//                 value={statusFilter}
+//                 onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Inactive')}
+//               >
+//                 {['All', 'Active', 'Inactive'].map((status) => (
+//                   <option key={status} value={status}>{status}</option>
+//                 ))}
+//               </select>
+//               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Table */}
+//         <div className="overflow-x-auto">
+//           <table className="w-full">
+//             <thead className="bg-gray-50 border-b border-gray-200">
+//               <tr>
+//                 <th>Profile</th>
+//                 <th>Provider</th>
+//                 <th>Specialist</th>
+//                 <th>Location</th>
+//                 <th>Contact</th>
+//                 <th>Status</th>
+//                 <th>Action</th>
+//               </tr>
+//             </thead>
+//             <tbody className="bg-white divide-y divide-gray-200">
+//               {paginatedProviders.map((provider) => (
+//                 <tr key={provider.id} className="hover:bg-gray-50 transition-colors">
+//                   <td className="px-6 py-4">
+//                     <img className="w-10 h-10 rounded-full" src={provider.image} alt="" />
+//                   </td>
+//                   <td className="px-6 py-4">
+//                     <div className="flex flex-col">
+//                       <span>{provider.name}</span>
+//                       <span>{provider.credentials || provider.email}</span>
+//                     </div>
+//                   </td>
+//                   <td className="px-6 py-4">
+//                     <span
+//                       className={`inline-flex py-2 px-4 rounded-full text-xs font-medium ${getSpecialistColor(
+//                         provider.specialist
+//                       )}`}
+//                     >
+//                       {provider.specialist}
+//                     </span>
+//                   </td>
+//                   <td className="px-6 py-4">
+//                     <div className="flex flex-col">
+//                       <span>{provider.location}</span>
+//                       <span>{provider.distance}</span>
+//                     </div>
+//                   </td>
+//                   <td className="px-6 py-4">
+//                     <div className="flex flex-col">
+//                       <span>{provider.contact}</span>
+//                       <span>{provider.email}</span>
+//                     </div>
+//                   </td>
+//                   <td className="px-6 py-4">
+//                     <span
+//                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+//                         provider.status === 'Active'
+//                           ? 'bg-green-100 text-green-700'
+//                           : 'bg-red-100 text-red-700'
+//                       }`}
+//                     >
+//                       {provider.status}
+//                     </span>
+//                   </td>
+//                   <td className="px-6 py-4 relative">
+//                     <button
+//                       onClick={() =>
+//                         setActionOpen(actionOpen === provider.id ? null : provider.id)
+//                       }
+//                       className="text-gray-400 hover:text-gray-600 transition-colors"
+//                     >
+//                       <MoreVertical className="w-5 h-5" />
+//                     </button>
+
+//                     {/* Action Dropdown */}
+//                     {actionOpen === provider.id && (
+//                       <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+//                             <button
+//                           className="w-full px-4 py-2 text-left text-sm text-yellow-600 hover:bg-gray-100 cursor-pointer"
+//                             onClick={() => {
+//     setIsEdit(true);
+//     setSelectedProvider(provider);
+//     setIsModalOpen(true);
+//     setActionOpen(null);
+//   }}
+//                         >
+//                           Edit
+//                         </button>
+//                         <button
+//                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                        
+//                         >
+//                           Delete
+//                         </button>
+//                         <button
+//                           className="w-full px-4 py-2 text-left text-sm text-yellow-600 hover:bg-gray-100 cursor-pointer"
+//                           onClick={() => handleSuspend(provider.id)}
+//                         >
+//                           Suspend
+//                         </button>
+//                       </div>
+//                     )}
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//  {isModalOpen && (
+//   <AddProviderModal
+//     isOpen={isModalOpen}
+//     onClose={() => setIsModalOpen(false)}
+//     isEdit={isEdit}
+//     providerData={selectedProvider}
+//   />
+// )}
+//         </div>
+
+//         {/* Pagination */}
+//         <div className="mt-4 flex justify-center items-center gap-2">
+//           <button
+//             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+//             disabled={currentPage === 1}
+//             className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
+//           >
+//             <ChevronLeft className="w-5 h-5" />
+//           </button>
+
+//           {Array.from({ length: totalPages }, (_, i) => (
+//             <button
+//               key={i + 1}
+//               onClick={() => setCurrentPage(i + 1)}
+//               className={`px-3 py-1 rounded ${
+//                 currentPage === i + 1 ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'
+//               }`}
+//             >
+//               {i + 1}
+//             </button>
+//           ))}
+
+//           <button
+//             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+//             disabled={currentPage === totalPages}
+//             className="px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50"
+//           >
+//             <ChevronRight className="w-5 h-5" />
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// } 
 
 
 
