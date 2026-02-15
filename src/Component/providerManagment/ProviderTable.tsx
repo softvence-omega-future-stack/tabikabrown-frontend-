@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Search, ChevronDown, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronDown, MoreVertical, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import userImg from '../../../public/images/user.png';
+import AddProviderModal from './AddProviderModal';
 
 interface Provider {
   id: number;
@@ -100,6 +101,11 @@ export default function ProviderTable() {
 
   const itemsPerPage = 3; // number of rows per page
 
+
+      const [isModalOpen, setIsModalOpen] = useState(false);
+const [isEdit, setIsEdit] = useState(false);
+const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+
   const handleSuspend = (id: number) => {
     setProviders((prev) =>
       prev.map((p) => (p.id === id ? { ...p, status: 'Inactive' } : p))
@@ -142,6 +148,19 @@ export default function ProviderTable() {
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
+               <div>
+          <button
+               onClick={() => {
+    setIsEdit(false);          
+    setSelectedProvider(null); 
+    setIsModalOpen(true);     
+  }}
+            className="bg-violet-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 cursor-pointer"
+          >
+            <Plus className="w-5 h-5" />
+            Add New
+          </button>
+      </div>
 
             {/* Specialist Dropdown */}
             <div className="relative">
@@ -244,13 +263,20 @@ export default function ProviderTable() {
                     {/* Action Dropdown */}
                     {actionOpen === provider.id && (
                       <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                            <button
+                          className="w-full px-4 py-2 text-left text-sm text-yellow-600 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+    setIsEdit(true);
+    setSelectedProvider(provider);
+    setIsModalOpen(true);
+    setActionOpen(null);
+  }}
+                        >
+                          Edit
+                        </button>
                         <button
                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                          onClick={() =>
-                            setProviders((prev) =>
-                              prev.filter((p) => p.id !== provider.id)
-                            )
-                          }
+                        
                         >
                           Delete
                         </button>
@@ -267,6 +293,14 @@ export default function ProviderTable() {
               ))}
             </tbody>
           </table>
+ {isModalOpen && (
+  <AddProviderModal
+    isOpen={isModalOpen}
+    onClose={() => setIsModalOpen(false)}
+    isEdit={isEdit}
+    providerData={selectedProvider}
+  />
+)}
         </div>
 
         {/* Pagination */}
@@ -302,7 +336,7 @@ export default function ProviderTable() {
       </div>
     </div>
   );
-}
+} 
 
 
 

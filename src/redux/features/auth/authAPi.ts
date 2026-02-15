@@ -12,6 +12,16 @@ export const userAPI = baseAPI.injectEndpoints({
       }),
     }),
 
+   // 🟢 Token Refresh Endpoint - CORRECT URL
+    refreshToken: build.mutation({
+      query: (refreshToken: string) => ({
+        url: "/accounts/token-refresh/", 
+        method: "POST",
+        body: { refresh: refreshToken },
+      }),
+    }),
+
+
        EmailverifyOTP: build.mutation({
       query: (data) => ({
         url: "/accounts/password-forgot-request/",
@@ -105,6 +115,7 @@ export const userAPI = baseAPI.injectEndpoints({
 
 export const {
   useLoginMutation,
+   useRefreshTokenMutation,
   useRegisterUserMutation,
    useForgotPasswordMutation,
    useChnagePasswordMutation,
