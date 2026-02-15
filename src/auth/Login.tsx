@@ -19,26 +19,53 @@ const LoginPage: React.FC = () => {
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
+  if (!email || !password) {
+    toast.error("Please fill in all fields");
+    return;
+  }
+
+  try {
+    const res = await login({ email, password }).unwrap();
+    
+    console.log('=== Login Response ===');
+    console.log('Full response:', res);
+    console.log('Type of res.access:', typeof res.access);
+    console.log('res.access value:', res.access);
+    
+    // 🟢 VALIDATE before dispatching
+    if (!res.access || res.access === 'undefined') {
+      console.error('❌ Invalid token in response!');
+      toast.error('Login failed - invalid token received');
       return;
     }
+    
+    // Dispatch with validated data
+    dispatch(setCredentials({ 
+      user: {
+        email: res.email,
+        role: res.role
+      },
+      token: res.access,  // Backend returns 'access' token
+      refreshToken: res.refresh
+    }));
+    
+    // Verify
+    console.log('✅ Token saved to localStorage:', localStorage.getItem('token')?.substring(0, 30) + '...');
+    
+    toast.success("Login successful!");
+    navigate("/dashboard");
+    
+  } catch (err: any) {
+    console.error('❌ Login error:', err);
+    toast.error(err?.data?.detail || "Login failed");
+  }
+};
 
-    try {
-      const res = await login({ email, password }).unwrap();
-      
-      // ✅ Save user + token in Redux (adjust action name based on your slice)
-      dispatch(setCredentials({ user: res.user, token: res.token }));
-      
-      toast.success("Login successful!");
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Login failed");
-    }
-  };
+console.log('Token:', localStorage.getItem('token'));
+console.log('Persist:', localStorage.getItem('persist:auth'));
 
   return (
     <div className="h-screen flex items-center justify-center p-4 md:p-6 font-sans">
